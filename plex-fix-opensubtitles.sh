@@ -21,8 +21,9 @@ if [ `whoami` != $USER ]; then
 fi
 
 cd "$LIBRARY_PATH"
-for lang in SUPPORTED_LANGUAGES; do
-	find . -name '*.srt' -path '*/$lang/*' -type f | while read line; do
+for lang in ${SUPPORTED_LANGUAGES[@]}; do
+	echo "Searching for $lang"
+	find . -name '*.srt' -path '*/'$lang'/*' -type f | while read line; do
 		SUB_FILE=$(basename "$line")
 		if [ -f "$line.$BACKUP_EXTENSION" ]; then
 			echo "- Skipping $SUB_FILE"
@@ -34,4 +35,5 @@ for lang in SUPPORTED_LANGUAGES; do
 			chmod 777 "$line"
 		fi
 	done
+	echo ""
 done

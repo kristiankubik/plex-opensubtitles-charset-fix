@@ -1,8 +1,9 @@
 #!/bin/bash
 
 USER='root'
-PLEX_PATH="/opt/plex"
-MEDIA_PATH="Library/ApplicationSupport/Plex Media Server/Media/localhost/"
+BACKUP_EXTENSION='bak'
+SUPPORTED_LANGUAGES=('cs' 'sk')
+LIBRARY_PATH="/opt/plex/Library/ApplicationSupport/Plex Media Server/Media/"
 
 # check user
 if [ `whoami` != $USER ]; then
@@ -19,18 +20,18 @@ if [ `whoami` != $USER ]; then
 	fi
 fi
 
-cd "$PLEX_PATH/$MEDIA_PATH"
-
-find . -name '*.srt' -path '*/cs/*' -type f | while read line; do
-	SUB_FILE=$(basename "$line")
-	if [ -f "$line.bak" ]; then
-		echo "- Skipping $SUB_FILE"
-	else
-		echo "+ Processing $SUB_FILE"
-		cp "$line" "$line.bak"
-		iconv -c -f cp1250 -t UTF8//TRANSLIT "$line" > "$line.2"
-		mv "$line.2" "$line"
-		chmod 777 "$line"
-	fi
+cd "$LIBRARY_PATH"
+for lang in SUPPORTED_LANGUAGES; do
+	find . -name '*.srt' -path '*/$lang/*' -type f | while read line; do
+		SUB_FILE=$(basename "$line")
+		if [ -f "$line.$BACKUP_EXTENSION" ]; then
+			echo "- Skipping $SUB_FILE"
+		else
+			echo "+ Processing $SUB_FILE"
+			cp "$line" "$line.$BACKUP_EXTENSION"
+			iconv -c -f cp1250 -t UTF8//TRANSLIT "$line" > "$line.2"
+			mv "$line.2" "$line"
+			chmod 777 "$line"
+		fi
+	done
 done
-
